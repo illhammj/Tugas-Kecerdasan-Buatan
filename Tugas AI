@@ -1,0 +1,47 @@
+import heapq
+
+graph = {
+    'S': [('A', 1), ('D', 2)],
+    'A': [('B', 2)],
+    'B': [('C', 2), ('E', 1)],
+    'C': [],
+    'D': [('B', 2), ('E', 3)],
+    'E': [('G', 3)],
+    'G': []
+}
+
+h = {
+    'S': 7,
+    'A': 9,
+    'B': 4,
+    'C': 2,
+    'D': 5,
+    'E': 3,
+    'G': 0
+}
+
+def a_star_search(start, goal):
+    open_list = [(h[start], 0, start, [start])]
+    visited = set()
+
+    while open_list:
+        f, g, node, path = heapq.heappop(open_list)
+
+        if node in visited:
+            continue
+        visited.add(node)
+
+        if node == goal:
+            return path, g
+
+        for neighbor, cost in graph[node]:
+            g_new = g + cost
+            f_new = g_new + h[neighbor]
+            heapq.heappush(open_list, (f_new, g_new, neighbor, path + [neighbor]))
+
+    return None, float("inf")
+
+
+path, cost = a_star_search('S', 'G')
+print("Path ditemukan:", path)
+print("Total cost:", cost)
