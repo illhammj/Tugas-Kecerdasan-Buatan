@@ -1,15 +1,18 @@
-import heapq
+import heapq  # Mengimpor modul heapq untuk menggunakan struktur data heap (priority queue)
 
+# Representasi graf dalam bentuk dictionary
+# Setiap node memiliki daftar tuple (tetangga, biaya ke tetangga)
 graph = {
-    'S': [('A', 1), ('D', 2)],
-    'A': [('B', 2)],
-    'B': [('C', 2), ('E', 1)],
-    'C': [],
-    'D': [('B', 2), ('E', 3)],
-    'E': [('G', 3)],
-    'G': []
+    'S': [('A', 1), ('D', 2)],  # Dari S ke A biaya 1, ke D biaya 2
+    'A': [('B', 2)],            # Dari A ke B biaya 2
+    'B': [('C', 2), ('E', 1)],  # Dari B ke C biaya 2, ke E biaya 1
+    'C': [],                    # C tidak punya tetangga
+    'D': [('B', 2), ('E', 3)],  # Dari D ke B biaya 2, ke E biaya 3
+    'E': [('G', 3)],            # Dari E ke G biaya 3
+    'G': []                     # G adalah goal, tidak punya tetangga
 }
 
+# Nilai heuristic (h) tiap node: perkiraan jarak dari node ke goal
 h = {
     'S': 7,
     'A': 9,
@@ -20,28 +23,42 @@ h = {
     'G': 0
 }
 
+# Fungsi A* search
 def a_star_search(start, goal):
+    # open_list menyimpan elemen dalam bentuk tuple (f, g, node, path)
+    # f = total cost (g + h), g = cost sebenarnya dari start ke node
+    # Awalnya hanya berisi node start
     open_list = [(h[start], 0, start, [start])]
-    visited = set()
+    visited = set()  # Menyimpan node yang sudah dikunjungi
 
+    # Loop selama masih ada node yang perlu dievaluasi
     while open_list:
+        # Ambil node dengan nilai f (prioritas) terkecil
         f, g, node, path = heapq.heappop(open_list)
 
+        # Jika node sudah pernah dikunjungi, lewati
         if node in visited:
             continue
-        visited.add(node)
+        visited.add(node)  # Tandai node sebagai sudah dikunjungi
 
+        # Jika node adalah goal, maka pencarian selesai
         if node == goal:
-            return path, g
+            return path, g  # Kembalikan jalur dan total biaya aktual
 
+        # Telusuri semua tetangga dari node saat ini
         for neighbor, cost in graph[node]:
-            g_new = g + cost
-            f_new = g_new + h[neighbor]
+            g_new = g + cost          # Hitung cost baru (g + biaya ke tetangga)
+            f_new = g_new + h[neighbor]  # Hitung total perkiraan cost (f = g + h)
+            # Masukkan tetangga ke open_list dengan prioritas berdasarkan f_new
             heapq.heappush(open_list, (f_new, g_new, neighbor, path + [neighbor]))
 
+    # Jika goal tidak ditemukan
     return None, float("inf")
 
 
+# Panggil fungsi A* untuk mencari rute dari 'S' ke 'G'
 path, cost = a_star_search('S', 'G')
+
+# Tampilkan hasil pencarian
 print("Path ditemukan:", path)
 print("Total cost:", cost)
